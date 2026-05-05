@@ -6,11 +6,27 @@ Each skill encodes a repeatable thinking pattern — the kind of judgment that u
 
 ---
 
+## The underlying framework
+
+Every skill in this portfolio applies the same three-stage meta-skill:
+
+**1. Pattern Extraction** — identify what kind of knowledge this is and what form it needs to take before trying to encode it
+
+**2. State Modeling** — make explicit what the world (user, system, org, process) looks like at each meaningful moment, and what causes transitions between moments
+
+**3. Decision Compression** — surface the tradeoffs the expert internalized so deeply they stopped noticing them, so a new practitioner can apply the same judgment to new situations
+
+These stages chain: you can't model state until you've extracted the right pattern, and you can't compress decisions until you've modeled the states they operate on.
+
+See [META-SKILL.md](./META-SKILL.md) for the full framework — including how to apply it when building new skills.
+
+---
+
 ## What's here
 
-| Skill | What it does | Meta-skill encoded |
-|---|---|---|
-| [runbook](./skills/runbook/) | Generates structured knowledge docs for onboarding and knowledge transfer | Pattern Extraction → State Modeling → Decision Compression |
+| Skill | What it does |
+|---|---|
+| [runbook](./skills/runbook/) | Generates structured knowledge docs for onboarding and knowledge transfer |
 
 More skills coming as they're built and refined.
 
@@ -29,17 +45,7 @@ skills/
 
 `SKILL.md` files are installable in Claude via the Skills feature. Drop the folder into your skills directory and Claude will pick it up automatically.
 
----
-
-## The thinking behind this
-
-These skills were built to automate a specific kind of PM work: the parts that require pattern recognition and judgment, not just execution. Things like:
-
-- Compressing institutional knowledge into docs a new hire can actually use
-- Turning recurring pain into structured runbooks instead of tribal knowledge
-- Capturing product decisions with their tradeoffs intact so the next person understands the *why*
-
-Each skill is built by interviewing the expert (me), extracting the underlying reasoning pattern, and encoding it so Claude can apply that same pattern to new inputs.
+Every `SKILL.md` encodes Pattern Extraction → State Modeling → Decision Compression, even if the domain looks nothing like knowledge transfer.
 
 ---
 
