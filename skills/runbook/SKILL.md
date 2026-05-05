@@ -26,6 +26,9 @@ The meta-skill you are encoding is:
 3. **Decision Compression** — why was this built this way, and what should the reader understand
    about the tradeoffs?
 
+These three stages are the foundation for all skills in this portfolio. See `META-SKILL.md` at
+the repo root for the full framework definition.
+
 The doc succeeds when a new hire reads it and can explain the topic to someone else — without
 calling you.
 
