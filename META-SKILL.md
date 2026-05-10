@@ -20,7 +20,11 @@ This stage answers:
 
 **The failure mode:** Skipping this stage and jumping straight to writing produces docs that are thorough but wrong-shaped — detailed answers to questions nobody was asking.
 
-**In the runbook skill:** The six doc types (org history, user workflow, business model, product decision, role, process) are the output of pattern extraction. Each one is a different shape of knowledge that requires a different structure.
+**In the ai-runbook-generator skill:** The six doc types (org history, user workflow, business model, product decision, role, process) are the output of pattern extraction. Each one is a different shape of knowledge that requires a different structure.
+
+**In the document-extraction-agent skill:** Classifying each document before extracting anything (offer letter vs. comp schedule vs. amendment) is pattern extraction — it determines which fields to pull and which expansion rules to apply.
+
+**In the invoicing-agent skill:** Identifying what can be resolved from the client config vs. what is genuinely missing is pattern extraction — it prevents asking for information that is already known.
 
 ---
 
@@ -39,7 +43,11 @@ State modeling makes that map explicit. It asks:
 
 **The failure mode:** Producing a flat list of steps instead of a model of states. Steps tell you what to do; states tell you *where you are*, which is what you need before you can decide what to do. Steps without states break down the moment the real world diverges from the expected path.
 
-**In the runbook skill:** The "How it works" section of each doc type is a state model. Each stage in a user workflow is a state — with a who, a goal, what happens, and what success looks like.
+**In the ai-runbook-generator skill:** The "How it works" section of each doc type is a state model. Each stage in a user workflow is a state — with a who, a goal, what happens, and what success looks like.
+
+**In the document-extraction-agent skill:** Each entity moves through states — ingested, classified, extracted, validated, written to import file or routed to exceptions report. The agent tracks where each entity is and what caused it to move.
+
+**In the invoicing-agent skill:** The invoice moves through states — request parsed, config loaded, fields resolved, template populated, config updated. Each state has explicit success criteria before advancing to the next.
 
 ---
 
@@ -60,7 +68,11 @@ This stage answers:
 
 **The failure mode:** Documenting conclusions without context. "We use ACH" with no explanation of why not wire, why not card, what the regulatory constraints were, or what would change the calculus. This produces compliance — people follow the rule without understanding it — which breaks the moment the situation changes slightly.
 
-**In the runbook skill:** The "Key decisions and tradeoffs" section is decision compression. So is the "Common questions and misconceptions" section — each FAQ is an implicit tradeoff that wasn't obvious enough to survive without explanation.
+**In the ai-runbook-generator skill:** The "Why it works this way" section is decision compression. So is the "Common questions" section — each FAQ is an implicit tradeoff that wasn't obvious enough to survive without explanation.
+
+**In the document-extraction-agent skill:** The rule "flag, don't fill" is decision compression — it encodes the judgment that a silent error in an import file costs far more than a one-time human review.
+
+**In the invoicing-agent skill:** The `decisions` list in each client config is decision compression made literal — every billing judgment call from past invoices becomes a stored rule that future runs apply automatically.
 
 ---
 
