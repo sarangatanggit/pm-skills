@@ -17,4 +17,6 @@ skills/
 
 | Skill | Description |
 |---|---|
-| [runbook](./runbook/) | Generates structured knowledge docs for onboarding and knowledge transfer |
+| [ai-runbook-generator](./ai-runbook-generator/) | Synthesizes Loom transcripts, Notion docs, and a GitHub repo into a structured runbook that preserves decision rationale — not just what the product does, but why |
+| [document-extraction-agent](./document-extraction-agent/) | Extracts structured, schema-ready data from a folder of mixed-format documents and produces a validated import file with an exceptions report for human review |
+| [invoicing-agent](./invoicing-agent/) | Generates client-accurate invoices from natural-language requests by loading per-client configs, applying stored billing rules, and writing new decisions back to config after each run |

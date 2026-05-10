@@ -26,9 +26,9 @@ See [META-SKILL.md](./META-SKILL.md) for the full framework — including how to
 
 | Skill | What it does |
 |---|---|
-| [runbook](./skills/runbook/) | Generates structured knowledge docs for onboarding and knowledge transfer |
-
-More skills coming as they're built and refined.
+| [ai-runbook-generator](./skills/ai-runbook-generator/) | Synthesizes Loom transcripts, Notion docs, and a GitHub repo into a structured runbook that preserves decision rationale — not just what the product does, but why |
+| [document-extraction-agent](./skills/document-extraction-agent/) | Extracts structured, schema-ready data from a folder of mixed-format documents and produces a validated import file with an exceptions report for human review |
+| [invoicing-agent](./skills/invoicing-agent/) | Generates client-accurate invoices from natural-language requests by loading per-client configs, applying stored billing rules, and writing new decisions back to config after each run |
 
 ---
 
@@ -51,4 +51,4 @@ Every `SKILL.md` encodes Pattern Extraction → State Modeling → Decision Comp
 
 ## Status
 
-This is a living portfolio. Skills get refined as they're used in the real world.
+Living portfolio. Skills get refined as they're used in the real world.
