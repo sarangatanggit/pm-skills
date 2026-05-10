@@ -74,6 +74,22 @@ design. Because the rules were explicit and documented (not buried in a prompt),
 be handed to the engineering team as a spec. This was not planned — it was a consequence of
 encoding the rules well from the start.
 
+**Page-selection rules cut ingestion time on large batches.** Each client's document
+templates settled into predictable layouts after the first few engagements — Acme Corp's
+comp schedule always landed on pages 8–12; Beacon Group's summary was always page 2. Once
+the account team learned this, they provided page-selection rules at the start of each
+batch. The agent logged which pages it read in the manifest, making it auditable and easy
+to expand the scope if a document deviated from the template. Ingestion time dropped
+significantly on 100+ page PDFs where only 3–5 pages held the relevant data.
+
+**Reconciliation against stated totals caught errors that row-level validation missed.**
+Many comp schedules included a grand total or annual total on the summary page. After
+expanding all recurring records into individual rows, the agent summed the extracted
+amounts and compared them against the stated total. On several occasions this surfaced
+either a missed record (a record type the agent had not classified) or an arithmetic error
+in the source document itself. In both cases the reconciliation exception was the signal
+that triggered the review — it would not have been found by checking individual rows.
+
 ---
 
 ## Inputs
@@ -83,18 +99,29 @@ encoding the rules well from the start.
 - Payout expansion horizon (end date for open-ended recurring schedules)
 - Currency default (assumed currency when not stated in a document)
 - Exceptions handling preference (hold flagged rows entirely, or include as partials)
+- Page-selection rules *(optional)* — clients with standardized document templates often have
+  comp schedule data concentrated on specific pages (e.g. "for Acme Corp documents, read
+  pages 8–12; for Beacon Group documents, read page 2"). Providing these rules narrows
+  ingestion and speeds analysis on large batches.
+- Reconciliation tolerance — the acceptable rounding difference when comparing extracted
+  payout totals against any contract or schedule grand total stated in the document
 
 ---
 
 ## Decision logic
 
-1. Survey the document folder; classify each document by type
-2. Extract the canonical member record for each person (resolve conflicts across documents)
-3. For each compensation line item, classify the record type: one-time, recurring, or ad hoc
-4. Expand recurring schedules into one row per payout event
-5. Validate each row against the import schema
-6. Write valid rows to the import file; write invalid or ambiguous rows to the exceptions report
-7. Log all assumptions made (expansion horizon used, currency defaults applied, etc.)
+1. Collect page-selection rules from the user; apply them during ingestion and log pages read
+2. Survey the document folder; classify each document by type
+3. Extract the canonical member record for each person (resolve conflicts across documents)
+4. For each compensation line item, classify the record type: one-time, recurring, or ad hoc
+5. Expand recurring schedules into one row per payout event
+6. Validate each row against the import schema
+7. Reconcile extracted payout totals against any stated grand total in the source document;
+   flag mismatches before writing to the import file
+8. Write valid, reconciled rows to the import file; write invalid, ambiguous, or unreconciled
+   rows to the exceptions report
+9. Log all assumptions made (expansion horizon used, currency defaults applied, page filters
+   applied, reconciliation results)
 
 ---
 

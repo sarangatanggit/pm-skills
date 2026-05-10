@@ -59,12 +59,18 @@ legal filings, or any domain where structured data lives in unstructured documen
 
 Before extracting any data, survey all documents in the folder and build a manifest.
 
+**Page focus:** If the user has provided page-selection rules (see Inputs), apply them during
+ingestion — read only the specified pages for each document or entity group. Log the
+page-selection rule used for each document in the manifest. If no rule covers a given
+document, read the full document and note "no page filter applied" in the manifest.
+
 For each document, record:
 - **Filename and format** (PDF, Word, Excel, other)
 - **Document type** — classify using the record types provided by the user; add
   "Unknown / unclassifiable" if no match
 - **Entities referenced** — names, IDs, or other identifiers found in the document
 - **Record types present** — which of the user-defined record types appear
+- **Pages read** — the specific pages ingested, or "all" if no page filter was applied
 
 Output this manifest before proceeding. If multiple documents reference the same entity,
 note which document is authoritative (latest date, explicit supersession language, or
@@ -135,6 +141,29 @@ Before writing each row, check:
 
 ---
 
+## Step 4a: Reconcile totals against source documents
+
+After all rows for an entity (or batch) are validated, check whether the source documents
+state an aggregate total — a contract total, invoice total, comp schedule grand total, or
+any other summary figure. If a stated total exists:
+
+1. Sum the amount column(s) across all extracted rows for that entity.
+2. Compare the sum to the stated total.
+3. If they match (within any rounding tolerance the user specifies): log the reconciliation
+   as confirmed in the assumptions log.
+4. If they do not match: write a reconciliation exception — do **not** silently accept the
+   rows. Include the entity, the stated total, the extracted sum, the difference, and the
+   pages or sections where each figure appeared.
+
+This step catches: missed records (a page was skipped or a record was not classified),
+double-counted records (an expansion rule applied twice), and arithmetic errors in the
+source document itself.
+
+If no stated total is found in the document, note "no stated total found — reconciliation
+skipped" in the assumptions log for that entity.
+
+---
+
 ## Step 5: Produce outputs
 
 ### Output 1: Import file (CSV or XLSX)
@@ -159,6 +188,8 @@ Group by issue type:
 - **Missing required field** — cannot write row without human input
 - **Conflicting data** — two documents disagree; human must pick
 - **Ambiguous record** — record language is unclear; human must interpret
+- **Reconciliation mismatch** — extracted row totals do not match a stated total in the
+  document; human must identify the discrepancy before importing
 - **Assumption made** — agent proceeded with an assumption; human should confirm
 
 ### Output 3: Assumptions log
@@ -187,13 +218,29 @@ Ask the user for these before starting. Do not proceed without them.
 7. **Default values** — any defaults to apply when a field is absent (e.g. currency, country)
 8. **Exceptions handling preference** — hold flagged rows entirely (default), or include
    partial rows with blanks and a note
+9. **Page selection rules** *(optional)* — if the relevant data in a document is
+   consistently on specific pages, the user can provide a mapping so the agent reads only
+   those pages. Accepted formats:
+   - **Per-entity rule:** "For client A, read pages 8–12. For client B, read page 2."
+   - **Per-document-type rule:** "For offer letters, read pages 1 and 3. For comp schedules,
+     read pages 4–6."
+   - **Global rule:** "All documents: read only the first 5 pages."
+   If no page-selection rule is provided, the agent reads every page. Partial-page rules are
+   logged in the manifest and assumptions log so reviewers can verify coverage.
+10. **Reconciliation tolerance** *(optional)* — the maximum acceptable rounding difference
+    (e.g. ±$0.01) when comparing extracted totals to stated document totals. Defaults to
+    exact match if not specified.
 
 ---
 
 ## Decision logic summary
 
 ```
+Before processing:
+  → Collect page-selection rules from the user (if any)
+
 For each document in the folder:
+  → Apply page-selection rule (entity-level, document-type-level, or global); log pages read
   → Classify document type
   → Extract entity record(s)
   → For each record:
@@ -204,11 +251,16 @@ For each document in the folder:
       → If invalid or ambiguous: write to exceptions report
   → Log any assumptions made
 
+After all rows for each entity are validated:
+  → Sum extracted amounts; compare to any stated total in the source document
+  → If match (within tolerance): log reconciliation as confirmed
+  → If mismatch: write reconciliation exception; do not import until resolved
+
 After all documents:
-  → Produce import file (valid rows only)
+  → Produce import file (valid, reconciled rows only)
   → Produce exceptions report (flagged rows, grouped by issue type)
-  → Produce assumptions log
-  → Produce document manifest
+  → Produce assumptions log (includes page-selection and reconciliation notes)
+  → Produce document manifest (includes pages-read column)
 ```
 
 ---
@@ -222,6 +274,11 @@ After all documents:
 - It does not interpret ambiguous language to fill gaps. Vague or qualified values are flagged,
   not estimated.
 - It does not restructure the target schema. The schema is a constraint, not a suggestion.
+- It does not silently skip pages beyond a page-selection rule without logging the omission.
+  If a page filter is applied and data may exist outside the filtered range, the agent notes
+  this in the manifest so reviewers can decide whether to expand the scope.
+- It does not silently accept extracted rows when a stated document total does not match.
+  A reconciliation mismatch always goes to the exceptions report.
 
 ---
 
